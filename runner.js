@@ -43,7 +43,7 @@ if (typeof window.ethereum !== 'undefined') {
       const prefixedMessage = '\x19Ethereum Signed Message:\n' + message.length + message;
 
       // Hash the message using web3.utils.soliditySha3
-      const messageHash = web3.utils.soliditySha3(prefixedMessage);
+      const messageHash = web3.utils.keccak256(message);
 
       // Request permission to sign the message
       const signature = await window.ethereum.request({ method: 'personal_sign', params: [messageHash, userAddress] });
