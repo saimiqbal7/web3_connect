@@ -7,28 +7,57 @@ if (typeof window.ethereum !== 'undefined') {
 
   // Request permission to access accounts
   window.ethereum.request({ method: 'eth_requestAccounts' })
-    .then((accounts) => {
+    .then(async (accounts) => {
       // Accounts now exposed
       const userAddress = accounts[0];
       console.log('User address:', userAddress);
 
-      // Do something with the user's address
-      // For example, display it on the webpage
-      document.getElementById('user-address').innerHTML = userAddress;
+      // Define your data object
+      const data = {
+        // ...
+        // testing data
+        // TODO: should let user input their data and generate it
+        uuid: "test-uuid",
+    linktree: [
+      {
+        key: 'official',
+        label: 'Official Website',
+        redirectUrl: 'https://spheron.network/',
+      },
+      {
+        key: 'twitter',
+        label: 'Twitter',
+        redirectUrl: 'https://twitter.com/blockchainbalak',
+      },
+      {
+        key: 'github',
+        label: 'GitHub',
+        redirectUrl: 'https://github.com/spheronFdn/',
+      },
+    ],
+    timestamp: Date.now(),
+      };
 
-      // Generate a 32-byte message hash
-      const message = 'Hello, world!';
+      // Stringify the data object and add Ethereum message prefix
+      const message = JSON.stringify(data);
+      const prefixedMessage = '\x19Ethereum Signed Message:\n' + message.length + message;
+
+      // Hash the message using web3.utils.soliditySha3
       const messageHash = web3.utils.keccak256(message);
 
       // Request permission to sign the message
-      window.ethereum.request({ method: 'eth_sign', params: [userAddress, messageHash] })
-        .then((signature) => {
-          // Signature now exposed
-          console.log('User signature:', signature);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      const signature = await window.ethereum.request({ method: 'personal_sign', params: [messageHash, userAddress] });
+      console.log('User signature:', signature);
+
+      // Create the payload
+      const payload = {
+        data,
+        eth_address: userAddress,
+        eth_signature: signature,
+      };
+
+      // Send the payload to the server
+      // ...
     })
     .catch((error) => {
       console.error(error);
